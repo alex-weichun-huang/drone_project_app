@@ -1,3 +1,29 @@
+# Faster-RCNN model
+
+To reproduce the results, download the <a href="https://drive.google.com/drive/folders/14E1StRs77a75Bh8F1p1SmFRLr_MCZ3kG"> model weights</a> and put it under `./assets/model`. 
+
+```
+This folder
+│   
+|   app.py
+|   README.md
+│   Dockerfile 
+│
+└───assets/
+        └─── images/
+        └─── outputs/
+        └─── model/
+            |
+            └──config.yaml
+            └──model_ckpt.pth
+```
+
+To train you own model, please refer to Detectron2 <a href="https://detectron2.readthedocs.io/en/latest/"> documentation </a>. The configuration I used can be found [here](/assets/model/config.yaml).
+
+> **Note:** During inference, I have set "cfg.SOLVER.IMS_PER_BATCH = 1" and "cfg.INPUT.CROP.ENABLED = False". 
+
+> **Note:** During deployment, I have set "cfg.DEVICE=cpu" since not everyone has access to GPUs. However, this does mean that it will take longer for the boxes to be drawn.
+
 # Run the APP with Docker
 
 1. Build the container

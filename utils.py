@@ -14,6 +14,8 @@ def load_model(model_dir, model_name):
     """ 
     Load model from model_dir/model_name.
     """
+    
+    # load config from yaml file
     cfg = get_cfg()
     yaml_file = os.path.join(model_dir, 'config.yaml')
     with open(yaml_file, 'r') as f:
@@ -56,6 +58,18 @@ def nms_all_classes(instances, iou_thresh):
 
 
 def inference(model, pil_image, output_path=None, score_thresh=0.75):
+    """
+    Perform inference on a single image.
+
+    Args:
+        model (Detectron2 model): Detectron2 model to use for inference
+        pil_image (PIL_image): PIL image to perform inference on
+        output_path (str, optional): Path to save output image if wanted. Defaults to None.
+        score_thresh (float, optional): Score threshold to use for bounding boxes. Defaults to 0.75.
+
+    Returns:
+        PIL_image: PIL image with bounding boxes drawn
+    """
     np_image = np.array(pil_image)
     image_dict = preprocess_image(pil_image)
     
@@ -68,8 +82,7 @@ def inference(model, pil_image, output_path=None, score_thresh=0.75):
             if score >= score_thresh:
                 cv2.rectangle(np_image, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (0, 255, 0), 2)
         
-        PIL_image = Image.fromarray(np_image)
-        
+        PIL_image = Image.fromarray(np_image)  
         if output_path is not None:
             PIL_image.save(output_path)
         
