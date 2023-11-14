@@ -10,7 +10,7 @@ from detectron2.data import build_detection_test_loader
 from detectron2.modeling import build_model
 
 
-def load_model(model_dir, model_name):
+def load_model(model_dir, model_name, device="cpu"):
     """ 
     Load model from model_dir/model_name.
     """
@@ -22,6 +22,7 @@ def load_model(model_dir, model_name):
         yaml_string = f.read()
         cfg = cfg.load_cfg(yaml_string)
         cfg.MODEL.WEIGHTS = os.path.join(model_dir, model_name)
+        cfg.MODEL.DEVICE = device
 
     # build the model and load checkpoint
     model = build_model(cfg)
@@ -32,11 +33,11 @@ def load_model(model_dir, model_name):
     return model
 
 
-def preprocess_image(pil_image):
+def preprocess_image(pil_image, device="cpu"):
     """ 
     Preprocess image for inference.
     """
-    tensor_image = torch.as_tensor(np.array(pil_image).transpose(2, 0, 1).astype("float32"))
+    tensor_image = torch.as_tensor(np.array(pil_image).transpose(2, 0, 1).astype("float32")).to(device)
     image_dict = {"image": tensor_image, "height": tensor_image.shape[1], "width": tensor_image.shape[2]}
     return image_dict
 
@@ -57,7 +58,7 @@ def nms_all_classes(instances, iou_thresh):
     return instances
 
 
-def inference(model, pil_image, output_path=None, score_thresh=0.75):
+def inference(model, pil_image, output_path=None, score_thresh=0.75, device="cpu"):
     """
     Perform inference on a single image.
 
@@ -71,7 +72,7 @@ def inference(model, pil_image, output_path=None, score_thresh=0.75):
         PIL_image: PIL image with bounding boxes drawn
     """
     np_image = np.array(pil_image)
-    image_dict = preprocess_image(pil_image)
+    image_dict = preprocess_image(pil_image, device=device)
     
     with torch.no_grad():
         detections = model([image_dict])[0]['instances']
@@ -85,6 +86,5 @@ def inference(model, pil_image, output_path=None, score_thresh=0.75):
         PIL_image = Image.fromarray(np_image)  
         if output_path is not None:
             PIL_image.save(output_path)
-        
+    
     return PIL_image
-

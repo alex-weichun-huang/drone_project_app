@@ -12,7 +12,8 @@ from utils import load_model, inference
 import warnings
 warnings.filterwarnings("ignore")
 
-model = load_model("./assets/model", "model_ckpt.pth")
+device = "cpu"
+model = load_model("./assets/model", "model_ckpt.pth", device=device)
 
 # Streamlit application main function
 def main():
@@ -26,9 +27,8 @@ def main():
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded Image', use_column_width=True)
         
-        
         # add bounding boxes to the image
-        box_image = inference(model, image, score_thresh=0.75)
+        box_image = inference(model, image, score_thresh=0.75, device=device)
         st.image(box_image, caption='Box Image', use_column_width=True)
 
 if __name__ == "__main__":
