@@ -9,3 +9,4 @@ fvcore==0.1.5.post20221221
 filterpy==1.4.5
 pandas==2.0.2
 streamlit==1.27.0
+flask==3.0.0
