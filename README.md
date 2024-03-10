@@ -20,9 +20,9 @@ This folder
 
 To train you own model, please refer to Detectron2 <a href="https://detectron2.readthedocs.io/en/latest/"> documentation </a>. The configuration I used can be found [here](/assets/model/config.yaml).
 
-> **Note:** During inference, I have set "cfg.SOLVER.IMS_PER_BATCH = 1" and "cfg.INPUT.CROP.ENABLED = False". 
+> **Note:** During inference, set "cfg.SOLVER.IMS_PER_BATCH = 1" and "cfg.INPUT.CROP.ENABLED = False". 
 
-> **Note:** During deployment, I have set "cfg.DEVICE=cpu" since not everyone has access to GPUs. However, this does mean that it will take longer for the boxes to be drawn.
+> **Note:** During deployment, I set "cfg.DEVICE=cpu" since not everyone has access to GPUs. However, this does mean that the waiting time will be longer.
 
 # Run the APP with Docker
 
