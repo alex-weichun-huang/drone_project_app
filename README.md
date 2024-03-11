@@ -57,7 +57,6 @@ sh Miniconda3-latest-Linux-x86_64.sh
 conda create --name drone_app python=3.9
 conda activate drone_app
 python -m pip install -r requirements.txt
-python -m pip install -e detectron2
 ```
 
 3. Run the App

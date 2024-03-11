@@ -1,4 +1,12 @@
 import os
+import sys
+import boto3
+import warnings
+warnings.filterwarnings("ignore")
+dir_path = os.path.join(os.path.dirname(__file__), "detectron2")
+sys.path.append(dir_path)
+
+
 import cv2
 import torch
 import numpy as np
@@ -6,7 +14,6 @@ from PIL import Image
 from torchvision.ops import nms 
 from detectron2.checkpoint import DetectionCheckpointer
 from detectron2.config import get_cfg
-from detectron2.data import build_detection_test_loader
 from detectron2.modeling import build_model
 
 
@@ -43,13 +50,8 @@ def preprocess_image(pil_image, device="cpu"):
 
 
 def nms_all_classes(instances, iou_thresh):
-    """ Apply non-maximum suppression to inference instances regardless of class.
-    
-    Args:
-        instances: instances from detectron2 model
-        iou_thresh: threshold to use for nms
-        
-    returns resulting instances after nms is applied
+    """ 
+    Apply non-maximum suppression to inference instances regardless of class.
     """
     valid_ind = nms(instances.pred_boxes.tensor, instances.scores, iou_thresh)
     instances.pred_boxes.tensor = instances.pred_boxes.tensor[valid_ind]
@@ -61,15 +63,6 @@ def nms_all_classes(instances, iou_thresh):
 def inference(model, pil_image, output_path=None, score_thresh=0.75, device="cpu"):
     """
     Perform inference on a single image.
-
-    Args:
-        model (Detectron2 model): Detectron2 model to use for inference
-        pil_image (PIL_image): PIL image to perform inference on
-        output_path (str, optional): Path to save output image if wanted. Defaults to None.
-        score_thresh (float, optional): Score threshold to use for bounding boxes. Defaults to 0.75.
-
-    Returns:
-        PIL_image: PIL image with bounding boxes drawn
     """
     np_image = np.array(pil_image)
     image_dict = preprocess_image(pil_image, device=device)
@@ -88,3 +81,26 @@ def inference(model, pil_image, output_path=None, score_thresh=0.75, device="cpu
             PIL_image.save(output_path)
     
     return PIL_image
+
+
+def create_presigned_url(bucket_name, object_name, expiration=3600):
+    """
+    Generate a presigned URL to share an S3 object
+    """
+    s3_client = boto3.client('s3')
+    response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': object_name}, ExpiresIn=expiration)
+    return response
+
+
+def list_files_in_bucket(bucket_name):
+    """
+    List objects within the specified bucket
+    """
+    urls = []
+    s3 = boto3.client('s3')
+    response = s3.list_objects_v2(Bucket=bucket_name)
+    if response['KeyCount'] > 0:
+        for obj in response['Contents']:
+            url = create_presigned_url(bucket_name, obj['Key'])
+            urls.append(url)
+    return urls 
